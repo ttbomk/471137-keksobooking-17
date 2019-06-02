@@ -1,7 +1,7 @@
 # Личный проект «Кексобукинг» [![Build status][travis-image]][travis-url]
 
 * Студент: [Владимир Остапов](https://up.htmlacademy.ru/javascript/17/user/471137).
-* Наставник: `Неизвестно`.
+* Наставник: `htmlacademy`.
 
 ---
 
