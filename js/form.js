@@ -37,4 +37,13 @@
       fieldAddress.value = leftMainPin + ', ' + topMainPin;
     }
   };
+
+  adForm.addEventListener('submit', function (evt) {
+    evt.preventDefault();
+    window.backend.save(new FormData(adForm), function () {
+      window.message.onSuccess();
+    }, function () {
+      window.message.onError('Ошибка');
+    });
+  });
 })();

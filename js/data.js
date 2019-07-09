@@ -16,10 +16,10 @@
   ];
 
   var MIN_PRICES = {
-    Bungalo: 0,
-    Flat: 1000,
-    House: 5000,
-    Palace: 10000
+    bungalo: 0,
+    flat: 1000,
+    house: 5000,
+    palace: 10000
   };
 
   var CONFIG = {
