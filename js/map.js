@@ -6,7 +6,7 @@
 
   window.map = {
     map: map,
-    mainPin: mainPin,
+    mainPin: mainPin
   };
 
   // Коллбэк активации карты
@@ -15,7 +15,13 @@
     window.form.adForm.classList.remove('ad-form--disabled');
     window.util.setDisabled(window.form.mapFilters, true);
     window.util.setDisabled(window.form.fieldsetsForm, true);
-    window.pin.renderPins(window.pin.generatePinsData());
+
+    // генерация пинов
+    window.backend.load(window.pin.onRender, function () {
+      window.message.onError(errorStatus);
+    });
+    // window.backend.load(window.pin.onRender, window.message.onError('Text ошибки'));
+    window.backend.load(window.pin.onRender, window.pin.onError);
     mainPin.removeEventListener('keydown', onActivatePage);
   };
 
@@ -32,19 +38,19 @@
 
     var startCoords = {
       x: evt.clientX,
-      y: evt.clientY,
+      y: evt.clientY
     };
 
     // Функция перемещения главного пина по карте
     var moveMainPin = function (mouseEvt) {
       var shift = {
         x: startCoords.x - mouseEvt.clientX,
-        y: startCoords.y - mouseEvt.clientY,
+        y: startCoords.y - mouseEvt.clientY
       };
 
       startCoords = {
         x: mouseEvt.clientX,
-        y: mouseEvt.clientY,
+        y: mouseEvt.clientY
       };
 
       var mainPinTop = mainPin.offsetTop - shift.y;
