@@ -3,6 +3,9 @@
 var MAIN_PIN_WIDTH = 65 / 2;
 var MAIN_PIN_HEIGHT = 65 / 2;
 
+var MAIN_PIN_WIDTH_MOVE = MAIN_PIN_WIDTH;
+var MAIN_PIN_HEIGHT_MOVE = 65 + 22;
+
 var TYPES = [
   'Bungalo',
   'Flat',
@@ -20,7 +23,7 @@ var MIN_PRICES = {
 var CONFIG = {
   width: {
     min: 0,
-    max: 1130
+    max: 1200
   },
   height: {
     min: 130,
@@ -73,9 +76,9 @@ var setDisabled = function (array, isDisabled) {
   return array;
 };
 
-var setAddressValue = function () {
-  var topMainPin = parseInt(mainPin.style.top, 10) + MAIN_PIN_HEIGHT;
-  var leftMainPin = parseInt(mainPin.style.left, 10) + MAIN_PIN_WIDTH;
+var setAddressValue = function (width, height) {
+  var topMainPin = parseInt(mainPin.style.top, 10) + height;
+  var leftMainPin = parseInt(mainPin.style.left, 10) + width;
 
   fieldAddress.value = leftMainPin + ', ' + topMainPin;
 };
@@ -129,21 +132,74 @@ var renderPins = function (array) {
   similarListElement.appendChild(fragment);
 };
 
-function onMapPinMainClick() {
+// Коллбэк активации карты
+var onActivatePage = function () {
   map.classList.remove('map--faded');
   adForm.classList.remove('ad-form--disabled');
-
   setDisabled(mapFilters, true);
   setDisabled(fieldsetsForm, true);
-
   renderPins(generatePinsData());
+};
 
-  mainPin.removeEventListener('click', onMapPinMainClick);
-}
+mainPin.addEventListener('mousedown', function (evt) {
+  evt.preventDefault();
 
-mainPin.addEventListener('click', onMapPinMainClick);
+  if (map.classList.contains('map--faded')) {
+    onActivatePage();
+  }
+
+  var startCoords = {
+    x: evt.clientX,
+    y: evt.clientY
+  };
+
+  // Функция перемещения главного пина по карте
+  var moveMainPin = function (mouseEvt) {
+    var shift = {
+      x: startCoords.x - mouseEvt.clientX,
+      y: startCoords.y - mouseEvt.clientY
+    };
+
+    startCoords = {
+      x: mouseEvt.clientX,
+      y: mouseEvt.clientY
+    };
+
+    var mainPinTop = mainPin.offsetTop - shift.y;
+    var mainPinLeft = mainPin.offsetLeft - shift.x;
+
+    if (mainPinTop > CONFIG.height.min - MAIN_PIN_HEIGHT_MOVE && mainPinTop < CONFIG.height.max) {
+      mainPin.style.top = mainPinTop + 'px';
+    }
+
+    if (mainPinLeft > CONFIG.width.min - MAIN_PIN_WIDTH && mainPinLeft < map.offsetWidth - MAIN_PIN_WIDTH_MOVE) {
+      mainPin.style.left = mainPinLeft + 'px';
+    }
+  };
+
+  var onMouseMove = function (moveEvt) {
+    moveEvt.preventDefault();
+
+    moveMainPin(moveEvt);
+    setAddressValue(MAIN_PIN_WIDTH_MOVE, MAIN_PIN_HEIGHT_MOVE);
+  };
+
+  var onMouseUp = function (upEvt) {
+    upEvt.preventDefault();
+
+    moveMainPin(upEvt);
+    setAddressValue(MAIN_PIN_WIDTH_MOVE, MAIN_PIN_HEIGHT_MOVE);
+
+    mainPin.removeEventListener('mouseup', onActivatePage);
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+  };
+
+  document.addEventListener('mousemove', onMouseMove);
+  document.addEventListener('mouseup', onMouseUp);
+});
 
 setDisabled(mapFilters, false);
 setDisabled(fieldsetsForm, false);
 
-setAddressValue();
+setAddressValue(MAIN_PIN_WIDTH, MAIN_PIN_HEIGHT);
