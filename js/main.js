@@ -4,11 +4,18 @@ var MAIN_PIN_WIDTH = 65 / 2;
 var MAIN_PIN_HEIGHT = 65 / 2;
 
 var TYPES = [
-  'palace',
-  'flat',
-  'house',
-  'bungalo'
+  'Bungalo',
+  'Flat',
+  'House',
+  'Palace'
 ];
+
+var MIN_PRICES = {
+  Bungalo: 0,
+  Flat: 1000,
+  House: 5000,
+  Palace: 10000
+};
 
 var CONFIG = {
   width: {
@@ -32,6 +39,27 @@ var fieldAddress = document.querySelector('#address');
 
 var similarListElement = map.querySelector('.map__pins');
 var pinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
+
+var types = adForm.querySelector('#type');
+var price = adForm.querySelector('#price');
+var timeIn = adForm.querySelector('#timein');
+var timeOut = adForm.querySelector('#timeout');
+
+// При изменении поля select, изменять значение плэйсхолдера в поле price
+// в соответствии с типом жилья
+types.addEventListener('change', function () {
+  var valueType = types.value;
+  price.setAttribute('placeholder', MIN_PRICES[valueType]);
+  price.setAttribute('min', MIN_PRICES[valueType]);
+});
+
+var onTimeChange = function (evt) {
+  var select = evt.target === timeIn ? timeOut : timeIn;
+  select.value = evt.target.value;
+};
+
+timeIn.addEventListener('change', onTimeChange);
+timeOut.addEventListener('change', onTimeChange);
 
 var setDisabled = function (array, isDisabled) {
   for (var i = 0; i < array.length; i++) {
