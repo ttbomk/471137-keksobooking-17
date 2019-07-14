@@ -1,26 +1,62 @@
 'use strict';
 
 (function () {
+  var ENTER_KEYCODE = 13;
   var ads = [];
-  var mapElement = document.querySelector('.map');
+  var activeId = -1;
 
-  function createAd(response) {
+  var map = document.querySelector('.map');
+
+  function createAd(responseId, response) {
     var ad = {
       author: response.author,
       location: response.location,
       offer: response.offer,
-      onClick: function () {
-        window.closeCard();
+      element: null,
+      id: responseId,
 
-        var input = document.getElementById('address');
-        input.setAttribute('value', ad.offer.address);
+      bindEmement: function (element) {
+        ad.element = element;
+      },
+
+      onClick: function () {
+        window.card.closeCard();
+        ad.setActive();
+
+        var input = document.querySelector('#address');
+        input.value = ad.offer.address;
 
         var cardFragment = document.createDocumentFragment();
-        cardFragment.appendChild(window.card.renderCard(ad));
-        mapElement.insertBefore(cardFragment, mapElement.querySelector('.map__filters-container'));
+        cardFragment.appendChild(window.card.card.renderCard(ad));
+        map.insertBefore(cardFragment, map.querySelector('.map__filters-container'));
+      },
+
+      onEnter: function (evt) {
+        if (evt.keyCode === ENTER_KEYCODE) {
+          ad.onClick();
+        }
+      },
+
+      setActive: function () {
+        pinUnactive();
+
+        if (ad.element) {
+          ad.element.classList.add('map__pin--active');
+          activeId = ad.id;
+        } else {
+          activeId = -1;
+        }
       }
     };
+
     return ad;
+  }
+
+  function pinUnactive() {
+    if (activeId >= 0 && activeId < ads.length && ads[activeId].element) {
+      ads[activeId].element.classList.remove('map__pin--active');
+    }
+    activeId = -1;
   }
 
   var errorMessage = null;
@@ -34,7 +70,6 @@
 
   function showErrorMessage(message) {
     if (!errorMessage) {
-      // debugger;
       var template = document.querySelector('#error').content.querySelector('.error');
       errorMessage = template.cloneNode(true);
       errorMessage.firstElementChild.innerText = message;
@@ -59,7 +94,7 @@
   function onDataSuccess(response) {
     try {
       for (var i = 0; i < response.length; i++) {
-        var ad = createAd(response[i]);
+        var ad = createAd(i, response[i]);
         ads.push(ad);
       }
 
@@ -77,4 +112,6 @@
   window.getAds = function () {
     return ads;
   };
+
+  window.pinUnactive = pinUnactive;
 })();

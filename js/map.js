@@ -1,29 +1,25 @@
 'use strict';
 
 (function () {
+  var Y_MIN = 130;
+  var Y_MAX = 630;
+  var PINS_NUMBER = 5;
 
-  var pinsElement = document.querySelector('.map__pins');
-
-  // активное состояние страницы
+  var pins = document.querySelector('.map__pins');
   var pinMain = document.querySelector('.map__pin--main');
   var adressPinMain = parseInt(pinMain.style.left, 10) + ', ' + parseInt(pinMain.style.top, 10);
+  var mainPinEnable = true;
+  var pinMainDefaultLeft = parseInt(pinMain.style.left, 10);
+  var pinMainDefaultTop = parseInt(pinMain.style.top, 10);
+  var input = document.querySelector('#address');
 
   // кнопка очистить
   var buttonReset = document.querySelector('.ad-form__reset');
 
   // функция добавляет адрес map__pin в инпут адреc
   function fillInputAddress() {
-    var input = document.getElementById('address');
-    input.setAttribute('value', adressPinMain);
+    input.value = adressPinMain;
   }
-
-  // сброс страницы при нажатии кнопки очистить
-  window.closeCard = function () {
-    var card = document.querySelector('.popup');
-    if (card) {
-      card.remove();
-    }
-  };
 
   window.removePins = function () {
     var pinOther = document.querySelectorAll('.pinOther');
@@ -35,11 +31,19 @@
   };
 
   window.clearPins = function () {
-    window.closeCard();
+    window.card.closeCard();
     window.removePins();
+    window.avatar.clearAvatarFile();
+    window.clearPhotoFiles();
+    mainPinEnable = true;
+    pinMain.focus();
+    pinMain.style.left = pinMainDefaultLeft + 'px';
+    pinMain.style.top = pinMainDefaultTop + 'px';
+    adressPinMain = pinMainDefaultLeft + ', ' + pinMainDefaultTop;
     fillInputAddress();
+    window.blockPage();
+    document.querySelector('.map').classList.add('map--faded');
   };
-
 
   function onPinMove(evt) {
     evt.preventDefault();
@@ -65,9 +69,7 @@
       };
 
       var mapWidth = document.querySelector('.map__pins').clientWidth;
-      var mapHeight = document.querySelector('.map__pins').clientHeight;
       var pinWidth = pinMain.offsetWidth;
-      var pinHeight = pinMain.offsetHeight;
 
       if (pinMain.offsetLeft - shift.x < 0) {
         shift.x = pinMain.offsetLeft;
@@ -75,14 +77,14 @@
         shift.x = pinMain.offsetLeft - (mapWidth - pinWidth);
       }
 
-      if (pinMain.offsetTop - shift.y < 0) {
-        shift.y = pinMain.offsetTop;
-      } else if (pinMain.offsetTop - shift.y > mapHeight - pinHeight) {
-        shift.y = pinMain.offsetTop - (mapHeight - pinHeight);
+      if (pinMain.offsetTop - shift.y < Y_MIN) {
+        shift.y = pinMain.offsetTop - Y_MIN;
+      } else if (pinMain.offsetTop - shift.y > Y_MAX) {
+        shift.y = pinMain.offsetTop - Y_MAX;
       }
 
-      pinMain.style.top = (pinMain.offsetTop - shift.y) + 'px';
       pinMain.style.left = (pinMain.offsetLeft - shift.x) + 'px';
+      pinMain.style.top = (pinMain.offsetTop - shift.y) + 'px';
 
       adressPinMain = parseInt(pinMain.style.left, 10) + ', ' + parseInt(pinMain.style.top, 10);
       fillInputAddress();
@@ -106,32 +108,40 @@
     document.addEventListener('mouseup', onMouseUp);
   }
 
-
   window.placePins = function () {
-    var PINS_NUMBER = 5;
-    var ads = window.getAds();
-    document.querySelector('.map').classList.remove('map--faded');
-    document.querySelector('.ad-form').classList.remove('ad-form--disabled');
-    window.avatar.removeAttribute('disabled', 'disabled');
-    window.formFields.forEach(function (item) {
-      item.removeAttribute('disabled', 'disabled');
-    });
-    fillInputAddress();
+    if (mainPinEnable) {
+      mainPinEnable = false;
 
-    var pinsFragment = document.createDocumentFragment();
-    var pinNumber = 0;
+      var ads = window.getAds();
+      document.querySelector('.map').classList.remove('map--faded');
+      document.querySelector('.map__filters').classList.remove('ad-form--disabled');
+      document.querySelector('.ad-form').classList.remove('ad-form--disabled');
+      window.avatarForm.removeAttribute('disabled', 'disabled');
+      document.querySelector('.map__features').removeAttribute('disabled', 'disabled');
+      window.formFilter.forEach(function (item) {
+        item.removeAttribute('disabled', 'disabled');
+      });
+      window.formFields.forEach(function (item) {
+        item.removeAttribute('disabled', 'disabled');
+      });
+      fillInputAddress();
 
-    for (var i = 0; i < ads.length; i++) {
-      if (window.adFilter.filter(ads[i])) {
-        pinsFragment.appendChild(window.renderPin(ads[i]));
-        if (++pinNumber >= PINS_NUMBER) {
-          break;
+      var pinsFragment = document.createDocumentFragment();
+      var pinNumber = 0;
+
+      for (var i = 0; i < ads.length; i++) {
+        if (window.adFilter.choose(ads[i])) {
+          pinsFragment.appendChild(window.renderPin(ads[i]));
+          pinNumber++;
+          if (pinNumber >= PINS_NUMBER) {
+            break;
+          }
         }
       }
-    }
 
-    if (pinsFragment.length !== 0) {
-      pinsElement.appendChild(pinsFragment);
+      if (pinsFragment.length !== 0) {
+        pins.appendChild(pinsFragment);
+      }
     }
   };
 
@@ -139,9 +149,10 @@
   pinMain.addEventListener('mousedown', onPinMove);
 
   // клик на кнопку очистить
-  buttonReset.addEventListener('click', window.clearPins);
+  window.utils.addClickListener(buttonReset, window.clearPins);
 
   // нажатие на главную метку - страница в активном состоянии
-  pinMain.addEventListener('mousedown', window.placePins);
+  window.utils.addClickListener(pinMain, window.placePins);
 
+  pinMain.focus();
 })();

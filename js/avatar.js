@@ -6,15 +6,18 @@
   var preview = document.querySelector('.ad-form-header__preview img');
   var defaultAvatar = preview.src;
 
+  var dropZone = document.querySelector('.ad-form-header__drop-zone');
+
   var avatarFile = null;
 
-  window.getAvatarFile = function () {
-    return avatarFile;
-  };
-
-  window.clearAvatarFile = function () {
-    avatarFile = null;
-    preview.src = defaultAvatar;
+  window.avatar = {
+    getAvatarFile: function () {
+      return avatarFile;
+    },
+    clearAvatarFile: function () {
+      avatarFile = null;
+      preview.src = defaultAvatar;
+    }
   };
 
   fileInput.addEventListener('change', function () {
@@ -41,51 +44,42 @@
     }
   }
 
-  // Drag and drop
-  window.dragAvatarOverHandler = function (ev) {
+  function onAvataDrag(evt) {
+    evt.preventDefault();
+  }
 
-    // Prevent default behavior (Prevent file from being opened)
-    ev.preventDefault();
-  };
+  function onAvatarDrop(evt) {
+    evt.preventDefault();
 
-  window.dropAvatarHandler = function (ev) {
-    // Prevent default behavior (Prevent file from being opened)
-    ev.preventDefault();
-
-    if (ev.dataTransfer.items) {
-      // Use DataTransferItemList interface to access the file(s)
-      for (var i = 0; i < ev.dataTransfer.items.length; i++) {
-        // If dropped items aren't files, reject them
-        if (ev.dataTransfer.items[i].kind === 'file') {
-          var file1 = ev.dataTransfer.items[i].getAsFile();
+    if (evt.dataTransfer.items) {
+      for (var i = 0; i < evt.dataTransfer.items.length; i++) {
+        if (evt.dataTransfer.items[i].kind === 'file') {
+          var file1 = evt.dataTransfer.items[i].getAsFile();
           if (i === 0) {
             showAvatarPreview(file1);
           }
         }
       }
     } else {
-      // Use DataTransfer interface to access the file(s)
-      for (var j = 0; j < ev.dataTransfer.files.length; j++) {
-        var file2 = ev.dataTransfer.files[j];
+      for (var j = 0; j < evt.dataTransfer.files.length; j++) {
+        var file2 = evt.dataTransfer.files[j];
         if (j === 0) {
           showAvatarPreview(file2);
         }
       }
     }
+    removeDragData(evt);
+  }
 
-    // Pass event to removeDragData for cleanup
-    removeDragData(ev);
-  };
+  function removeDragData(evt) {
 
-  function removeDragData(ev) {
-
-    if (ev.dataTransfer.items) {
-      // Use DataTransferItemList interface to remove the drag data
-      ev.dataTransfer.items.clear();
+    if (evt.dataTransfer.items) {
+      evt.dataTransfer.items.clear();
     } else {
-      // Use DataTransfer interface to remove the drag data
-      ev.dataTransfer.clearData();
+      evt.dataTransfer.clearData();
     }
   }
 
+  dropZone.addEventListener('drop', onAvatarDrop, false);
+  dropZone.addEventListener('dragover', onAvataDrag, false);
 })();

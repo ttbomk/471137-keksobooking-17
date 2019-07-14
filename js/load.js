@@ -1,6 +1,9 @@
 'use strict';
 
 (function () {
+  var STATUS_COD_OK = 200;
+  var TIMEOUT = 10000;
+  var RESPONSE_TYPE = 'json';
   var loader = {
     URL: 'https://js.dump.academy/keksobooking/data',
     funcSuccess: null,
@@ -11,11 +14,11 @@
       loader.funcError = onError;
 
       var xhr = new XMLHttpRequest();
-      xhr.responseType = 'json';
-      xhr.timeout = 10000;
+      xhr.responseType = RESPONSE_TYPE;
+      xhr.timeout = TIMEOUT;
 
       xhr.onload = function () {
-        if (xhr.status === 200) {
+        if (xhr.status === STATUS_COD_OK) {
           if (loader.funcSuccess) {
             loader.funcSuccess(xhr.response);
           }
@@ -50,5 +53,4 @@
   };
 
   window.load = loader.load;
-
 })();
