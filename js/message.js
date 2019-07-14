@@ -5,82 +5,65 @@
   var successTemplate = document.querySelector('#success').content.querySelector('.success');
   var errorTemplate = document.querySelector('#error').content.querySelector('.error');
 
-  // Функция вывода сообщения об успешной отправке данных
-  var onSuccess = function () {
-    var successElement = successTemplate.cloneNode(true);
-
-    var onClick = function () {
-      close();
-    };
-
-    var onKey = function (evt) {
-      if (evt.keyCode === window.util.KeyCodes.ESC) {
-        close();
-      }
-    };
-
-    var close = function () {
-      successElement.classList.add('hidden');
-      successElement.removeEventListener('click', onClick);
-      document.removeEventListener('keydown', onKey);
-    };
-
-    successElement.addEventListener('click', onClick);
-    document.addEventListener('keydown', onKey);
-
-    return successElement;
+  // определяем типы сообщений, чтоб уменьшить дублирование, так как они имеют похожие классы
+  var MessageTypes = {
+    ERROR: 'error',
+    SUCCESS: 'success',
   };
 
-  // Функция вывода ошибки
-  var onError = function (errorStatus) {
-    var errorElement = errorTemplate.cloneNode(true);
-    var errorMessage = errorElement.querySelector('.error__message');
-
-    errorMessage.textContent = errorStatus;
-
-    var onClick = function () {
-      close();
-    };
-
-    var onKey = function (evt) {
-      if (evt.keyCode === window.util.KeyCodes.ESC) {
-        close();
-      }
-    };
-
-    var close = function () {
-      errorElement.classList.add('hidden');
-      errorElement.removeEventListener('click', onClick);
-      document.removeEventListener('keydown', onKey);
-    };
-
-    errorElement.addEventListener('click', onClick);
-    document.addEventListener('keydown', onKey);
-
-    return errorElement;
-  };
-
-  var renderMessage = function (getMessageElement) {
-    var message = getMessageElement();
+  // функция принимает шаблон и тупо его рендерит
+  var renderMessage = function (template) {
+    var message = template.cloneNode(true);
     message.classList.add('hidden');
     main.insertAdjacentElement('afterbegin', message);
   };
 
-  renderMessage(onError);
-  renderMessage(onSuccess);
+  renderMessage(successTemplate);
+  renderMessage(errorTemplate); // на старте приложения рендерим и прячем
 
-  var showSuccessMessage = function () {
-    var successMessage = document.querySelector('.success');
-    successMessage.classList.remove('hidden');
+  // общая функция для показа сообщения, всё навешивается здесь, чтобы скрытые сообщения были без подписок
+  var showMessage = function (type, text) {
+    var message = document.querySelector('.' + type);
+    var messageText = message.querySelector('.' + type + '__message'); // по типу получаем текст и сам элемент
+
+    if (text) {
+      messageText.textContent = text;
+    }
+
+    var onClick = function () {
+      close();
+    };
+
+    var onKey = function (evt) {
+      if (evt.keyCode === window.util.KeyCodes.ESC) {
+        close();
+      }
+    };
+
+    var close = function () {
+      message.classList.add('hidden');
+      message.removeEventListener('click', onClick);
+      document.removeEventListener('keydown', onKey);
+    };
+
+    message.addEventListener('click', onClick);
+    document.addEventListener('keydown', onKey);
+
+    message.classList.remove('hidden'); // показываем ее
   };
 
-  var showErrorMessage = function () {
-    var message = document.querySelector('.error');
-    message.classList.remove('hidden');
+  // функция обертки, которая принимает текст и вызывают функцию показа
+  var onSuccess = function (text) {
+    showMessage(MessageTypes.SUCCESS, text);
+  };
+
+  // текст тут равен ошибки которая в бекенде, мы вызываем функцию show с типом error и текстом
+  var onError = function (text) {
+    showMessage(MessageTypes.ERROR, text);
   };
 
   window.message = {
-    onSuccess: showSuccessMessage,
-    onError: showErrorMessage
+    onSuccess: onSuccess,
+    onError: onError
   };
 })();

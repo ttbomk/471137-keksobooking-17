@@ -42,8 +42,9 @@
     evt.preventDefault();
     window.backend.save(new FormData(adForm), function () {
       window.message.onSuccess();
+      window.pin.clearPin();
     }, function () {
-      window.message.onError('Ошибка');
+      window.message.onError();
     });
   });
 })();

@@ -16,6 +16,15 @@
     return pinElement;
   };
 
+  var clearPin = function () {
+    var mapPins = document.querySelector('.map__pins');
+    var pins = mapPins.querySelectorAll('.map__pin:not(.map__pin--main)');
+
+    pins.forEach(function (pin) {
+      mapPins.removeChild(pin);
+    });
+  };
+
   window.pin = {
     onRender: function (array) {
       var fragment = document.createDocumentFragment();
@@ -23,6 +32,7 @@
         fragment.appendChild(renderPin(array[i]));
       }
       similarListElement.appendChild(fragment);
-    }
+    },
+    clearPin: clearPin,
   };
 })();
