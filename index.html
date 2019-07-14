@@ -37,7 +37,7 @@
 
       <!-- Фильтрация объявлений -->
       <div class="map__filters-container">
-        <form action="https://js.dump.academy/keksobooking" class="map__filters" autocomplete="off">
+        <form action="#" class="map__filters" autocomplete="off">
           <select name="housing-type" id="housing-type" class="map__filter">
             <option value="any" selected>Любой тип жилья</option>
             <option value="palace">Дворец</option>
@@ -93,7 +93,7 @@
             </div>
             <div class="ad-form__field">
               <input type="file" id="avatar" name="avatar" class="ad-form-header__input visually-hidden">
-              <label class="ad-form-header__drop-zone" for="avatar">Загрузите или&nbsp;перетащите сюда фото</label>
+              <label class="ad-form-header__drop-zone" for="avatar" ondrop="dropAvatarHandler(event);" ondragover="dragAvatarOverHandler(event);">Загрузите или&nbsp;перетащите сюда фото</label>
             </div>
             <p class="ad-form-header__info">Заполните все обязательные поля, назначьте цену, загрузите фотографии. Придумайте интересное описание. Оно сделает объявление более живым и привлекательным. Получившееся объявление должно давать гостям полное представление о вашем жилье.</p>
           </div>
@@ -109,15 +109,15 @@
         <fieldset class="ad-form__element">
           <label class="ad-form__label" for="type">Тип жилья</label>
           <select id="type" name="type">
-            <option value="Bungalo">Бунгало</option>
-            <option value="Flat" selected>Квартира</option>
-            <option value="House">Дом</option>
-            <option value="Palace">Дворец</option>
+            <option value="bungalo">Бунгало</option>
+            <option value="flat" selected>Квартира</option>
+            <option value="house">Дом</option>
+            <option value="palace">Дворец</option>
           </select>
         </fieldset>
         <fieldset class="ad-form__element">
           <label class="ad-form__label" for="price">Цена за ночь, руб.</label>
-          <input id="price" name="price" type="number" placeholder="5000" max="1000000" required>
+          <input id="price" name="price" type="number" placeholder="1000" min="0" max="1000000" required>
         </fieldset>
         <fieldset class="ad-form__element ad-form__element--time">
           <label class="ad-form__label" for="timein">Время заезда и выезда</label>
@@ -144,9 +144,9 @@
         <fieldset class="ad-form__element">
           <label class="ad-form__label" for="capacity">Количество мест</label>
           <select id="capacity" name="capacity">
-            <option value="3" selected>для 3 гостей</option>
+            <option value="1" selected>для 1 гостя</option>
             <option value="2">для 2 гостей</option>
-            <option value="1">для 1 гостя</option>
+            <option value="3">для 3 гостей</option>
             <option value="0">не для гостей</option>
           </select>
         </fieldset>
@@ -242,7 +242,7 @@
     </div>
   </template>
 
-  <!-- Сообщение об ошибке создания объеявления -->
+  <!-- Сообщение об ошибке создания объявления -->
   <template id="error">
     <div class="error">
       <p class="error__message">Ошибка загрузки объявления</p>
@@ -250,6 +250,7 @@
     </div>
   </template>
 
+  <script src="js/avatar.js"></script>
   <script src="js/utils.js"></script>
   <script src="js/load.js"></script>
   <script src="js/json-data.js"></script>

@@ -1,4 +1,5 @@
 'use strict';
+
 (function () {
   window.renderPin = function (ad) {
     var template = document.querySelector('#pin').content.querySelector('.map__pin');

@@ -1,4 +1,5 @@
 'use strict';
+
 (function () {
 
   var pinsElement = document.querySelector('.map__pins');
@@ -111,6 +112,7 @@
     var ads = window.getAds();
     document.querySelector('.map').classList.remove('map--faded');
     document.querySelector('.ad-form').classList.remove('ad-form--disabled');
+    window.avatar.removeAttribute('disabled', 'disabled');
     window.formFields.forEach(function (item) {
       item.removeAttribute('disabled', 'disabled');
     });
